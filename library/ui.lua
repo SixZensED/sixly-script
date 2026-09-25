@@ -1797,7 +1797,25 @@ do
             end
         end
 
-        local default = options.default or (list[1] and list[1].Name) or "None"
+        local default
+
+        if useToggles then
+            local defaults = type(options.default) == "table" and options.default or {}
+
+            for _,item in ipairs(list) do
+                if location[item.flag] == nil then
+                    local configured = defaults[item.flag]
+                    if configured == nil then
+                        configured = table.find(defaults,item.Name) ~= nil
+                    end
+                    location[item.flag] = configured == true
+                end
+            end
+
+            default = name
+        else
+            default = options.default or (list[1] and list[1].Name) or "None"
+        end
 
         if not useToggles then
             location[flag] = default
@@ -1972,7 +1990,7 @@ do
             local function switch()
                 if useToggles then
                     location[v.flag] = not location[v.flag]
-                    callback(location[v.flag])
+                    callback(location[v.flag],v.Name,v.flag)
                     toggle.toggle:TweenSizeAndPosition((location[v.flag] and UDim2.new(1, 0, 1, 0)) or UDim2.new(0, 0, 0, 0), (location[v.flag] and UDim2.new(0, 0, 0, 0)) or UDim2.new(0.5, 0, 0.5, 0), (location[v.flag] and 'Out') or 'In', (location[v.flag] and 'Elastic') or 'Quad', (location[v.flag] and 0.75) or 0.15, true)
                 else
                     dropDown.toggled = false
