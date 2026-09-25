@@ -1777,8 +1777,27 @@ do
         local location = options.location or self.flags
         local flag = not useToggles and options.flag or ""
         local callback = callback or function() end
-        local list = options.list or {}
-        local default = options.default or list[1].Name
+        local list = {}
+
+        for i,v in ipairs(options.list or {}) do
+            if type(v) == "table" then
+                local item = {}
+                for key,value in pairs(v) do
+                    item[key] = value
+                end
+                item.Name = tostring(v.Name or v.name or v[1] or ("Option " .. i))
+                item.flag = v.flag or item.Name
+                table.insert(list,item)
+            else
+                local itemName = tostring(v)
+                table.insert(list,{
+                    Name = itemName;
+                    flag = itemName;
+                })
+            end
+        end
+
+        local default = options.default or (list[1] and list[1].Name) or "None"
 
         if not useToggles then
             location[flag] = default
