@@ -353,11 +353,9 @@ do
                     if v.toggled then
                     
                         v.toggled = false
-                        local frame = v.object.border.frame
-
                         if not v.usesToggles then
-                            frame.label.TextTransparency = 0
-                            frame.label.Text = v.l[v.f]
+                            v.label.TextTransparency = 0
+                            v.label.Text = v.l[v.f]
                         end
 
                         tab.parentObject:TweenSize(UDim2.new(0, tab.parentObject.AbsoluteSize.X, 0, originalTabY), "In", "Quad", 0.15, true)
@@ -1927,11 +1925,15 @@ do
             Parent = self.container;
         })
 
-        local button = newDropdown.border.frame
+        local border = newDropdown:WaitForChild("border")
+        local button = border:WaitForChild("frame")
+        local label = button:WaitForChild("label")
 
         local dropDown = {
             toggled = false;
             object = newDropdown;
+            border = border;
+            label = label;
             arrow = arrow;
             container = container.containerBorder.container.scroll;
             l = location;
@@ -2001,7 +2003,7 @@ do
                     self.parentObject:TweenSize(UDim2.new(0, self.parentObject.AbsoluteSize.X, 0, originalTabY), "In", "Quad", 0.15, true)
                     self.container:TweenSize(UDim2.new(0, self.container.AbsoluteSize.X, 0, originalTabContainerY), "In", "Quad", 0.15, true)
 
-                    newDropdown.border.arrow.Rotation = 0
+                    dropDown.arrow.Rotation = 0
                     container:TweenSize(UDim2.new(1, 0, 0, 0), "In", "Quad", 0.15, true)
                     
                     location[flag] = tostring(listItem.Text)
@@ -2028,8 +2030,8 @@ do
             dropDown.toggled = not dropDown.toggled
 
             if not useToggles then
-                newDropdown.border.frame.label.TextTransparency = (dropDown.toggled and 0.5) or 0
-                newDropdown.border.frame.label.Text = (dropDown.toggled and name) or location[flag]
+                dropDown.label.TextTransparency = (dropDown.toggled and 0.5) or 0
+                dropDown.label.Text = (dropDown.toggled and name) or location[flag]
             end
 
             local y = 0
@@ -2051,9 +2053,9 @@ do
                     v.container.Parent.Parent.Parent:TweenSize(UDim2.new(1, 0, 0, 0), "In", "Quad", 0.15, true)
                     wait(0.15)
 
-                    if not useToggles then
-                        v.object.border.frame.label.TextTransparency = 0
-                        v.object.border.frame.label.Text = v.l[v.f]
+                    if not v.usesToggles then
+                        v.label.TextTransparency = 0
+                        v.label.Text = v.l[v.f]
                     end
                 end
             end
@@ -2063,26 +2065,26 @@ do
             end
 
             self.container:TweenSize(UDim2.new(0, self.container.AbsoluteSize.X, 0, (dropDown.toggled and originalTabContainerY + y) or originalTabContainerY), (dropDown.toggled and 'Out') or 'In', 'Quad', 0.15, true)
-            newDropdown.border.arrow.Rotation = (dropDown.toggled and 180) or 0
+            dropDown.arrow.Rotation = (dropDown.toggled and 180) or 0
             container:TweenSize(UDim2.new(1, 0, 0, (dropDown.toggled and y) or 0), (dropDown.toggled and "Out") or "In", "Quad", 0.15, true)
         end)
 
         userInputService.InputBegan:Connect(function(input)
             if input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
-            if not dropDown.toggled or (isInGui(newDropdown.border) or isInGui(container.containerBorder)) then return end
+            if not dropDown.toggled or (isInGui(dropDown.border) or isInGui(container.containerBorder)) then return end
 
             dropDown.toggled = false
 
             if not useToggles then
-                newDropdown.border.frame.label.TextTransparency = 0
-                newDropdown.border.frame.label.Text = location[flag]
+                dropDown.label.TextTransparency = 0
+                dropDown.label.Text = location[flag]
             end
 
             container:TweenSize(UDim2.new(1, 0, 0, 0), "In", "Quad", 0.15, true)
             self.parentObject:TweenSize(UDim2.new(0, self.parentObject.AbsoluteSize.X, 0, originalTabY), "In", "Quad", 0.15, true)
             self.container:TweenSize(UDim2.new(0, self.container.AbsoluteSize.X, 0, originalTabContainerY), "In", "Quad", 0.15, true)
 
-            newDropdown.border.arrow.Rotation = 0
+            dropDown.arrow.Rotation = 0
         end)
     end
 
