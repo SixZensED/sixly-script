@@ -97,7 +97,8 @@ end
 local return_plot = function()
     local plot = get_my_plot()
     if not plot then return end
-    tween_to(plot:GetPivot(),2000)
+    --tween_to(plot:GetPivot(),2000)
+    teleport(plot:GetPivot())
 end
 
 local pickup_egg = function(uid)
@@ -117,7 +118,7 @@ local collect_eggs = function()
                     return
                 end
                 pickup_egg(v.Name)
-                task.wait(2)
+                task.wait()
             until is_carrying_eggs() or not auto_farm
             return_plot()
         end
