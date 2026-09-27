@@ -97,7 +97,7 @@ end
 local return_plot = function()
     local plot = get_my_plot()
     if not plot then return end
-    tween_to(plot:GetPivot())
+    tween_to(plot:GetPivot(),700)
 end
 
 local pickup_egg = function(uid)
