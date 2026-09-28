@@ -13,6 +13,9 @@ local auto_farm = false
 local select_raritys = {}
 local active_tween
 
+local Mount = Game.Mounting
+
+
 -- module
 
 local eggs = require(ReplicatedStorage.GameData.Eggs)
@@ -105,12 +108,86 @@ local pickup_egg = function(uid)
     return Game.EggPickup:FireServer(uid)
 end
 
+local is_in_volcano = function()
+    return LocalPlayer:GetAttribute("InVolcano") == true
+end
+
+local is_riding_pet = function()
+    return LocalPlayer:GetAttribute("IsRiding") == true
+end
+
+local riding_pet = function()
+    local selected_pet
+    local lowest_weight = math.huge
+    for _, v in LocalPlayer.Backpack:GetChildren() do
+        if v:IsA("Tool") and v:GetAttribute("PetName") ~= nil then
+            local weight = v:GetAttribute("Weight")
+
+            if type(weight) == "number" and weight < lowest_weight then
+                lowest_weight = weight
+                selected_pet = v
+            end
+        end
+    end
+    if not selected_pet then
+        return
+    end
+    selected_pet.Parent = LocalPlayer.Character
+    repeat task.wait() until LocalPlayer.Character:FindFirstChild(selected_pet.Name)
+    task.wait()
+    Mount:FireServer()
+end
+
 local collect_eggs = function()
     if not auto_farm then return end
     for i, v in ReplicatedStorage.ServerData.ActiveEggs:GetChildren() do
         local weight = v:GetAttribute("Weight")
         local spawn_size = v:GetAttribute("SpawnSize")
-
+        if v:GetAttribute("Egg") == "Volcanic Egg" and select_raritys[get_eggs(v:GetAttribute("Egg"))] then
+            if not is_in_volcano() and is_carrying_eggs() then
+                return_plot()
+                return
+            end
+            if is_in_volcano() and is_carrying_eggs() then
+                if LocalPlayer:DistanceFromCharacter(Vector3.new(-4924.9033203125, 41287.4609375, -3700.96435546875)) > 10 then
+                    teleport(workspace.Volcano.VolcanoValidate.CFrame)
+                    task.wait()
+                    tween_to(CFrame.new(-4924.9033203125, 41287.4609375, -3700.96435546875),100)
+                end
+                return
+            end
+            if not is_in_volcano() then
+                if not is_riding_pet() then
+                    riding_pet()
+                    task.wait(2)
+                    return
+                end
+                repeat task.wait()
+                if LocalPlayer:DistanceFromCharacter(workspace.Volcano.VolcanoEntrance.CFrame.Position) > 20 then
+                    teleport(CFrame.new(-4924.9033203125, 41287.4609375, -3700.96435546875))
+                    task.wait(1)
+                    tween_to(workspace.Volcano.VolcanoValidate.CFrame,100)
+                end
+                until is_in_volcano() or not auto_farm
+                return
+            end
+            if is_in_volcano() and not is_carrying_eggs() and select_raritys[get_eggs(v:GetAttribute("Egg"))] and v:IsA("Configuration") then
+                repeat task.wait()
+                    if LocalPlayer:DistanceFromCharacter(v:GetAttribute("Position")) > 20 then
+                        teleport(CFrame.new(v:GetAttribute("Position")))
+                        return
+                    end
+                    pickup_egg(v.Name)
+                    task.wait()
+                until is_carrying_eggs() or not auto_farm
+                if LocalPlayer:DistanceFromCharacter(Vector3.new(-4924.9033203125, 41287.4609375, -3700.96435546875)) > 10 then
+                    teleport(workspace.Volcano.VolcanoValidate.CFrame)
+                    task.wait()
+                    tween_to(CFrame.new(-4924.9033203125, 41287.4609375, -3700.96435546875),100)
+                end
+            end
+            return
+        end
         if v:IsA("Configuration") and select_raritys[get_eggs(v:GetAttribute("Egg"))] and auto_farm and not is_carrying_eggs() then
             repeat task.wait()
                 if LocalPlayer:DistanceFromCharacter(v:GetAttribute("Position")) > 20 then
