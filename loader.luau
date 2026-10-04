@@ -1,7 +1,5 @@
 local lists = {
         [10035204815] = "ride-a-pet",
-        [10684750879] = "loot-to-forge",
-        [10116272705] = "anime-mysterious",
 }
 local name = lists[game.GameId]
 
